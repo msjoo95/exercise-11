@@ -1,0 +1,159 @@
+---
+title: "Exercise-11"
+author: "Minsoo Joo"
+date: "2025-04-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+
+```{r}
+library(tidyverse)
+f <- "https://raw.githubusercontent.com/difiore/ada-datasets/main/Mammal_lifehistories_v2.txt"
+d <- read_tsv(f, col_names = TRUE)
+
+library(skimr)
+skim(d)
+
+```
+
+Categorical variables: order, family, Genus, species
+
+Numerical variables: all other variables
+
+# Challenge
+
+## Step 1
+Replace all values of -999 (the authors’ code for missing data) with NA.
+```{r}
+d[d==-999] <- NA
+```
+
+## Step 2
+Drop the variables litter size and refs.
+```{r}
+d <- d %>% 
+  subset(select = -c(`litter size`,refs))
+```
+
+## Step 3
+Log transform all of the other numeric variables.
+```{r}
+d <- d %>% 
+  mutate(across(where(is.numeric), log))
+```
+
+## Step 4
+Regression
+```{r}
+d$relGest <- residuals(lm(`gestation(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWean <- residuals(lm(`weaning(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relAFR <- residuals(lm(`AFR(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relLife <- residuals(lm(`max. life(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relNewbornMass <- residuals(lm(`newborn(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWeaningMass <- residuals(lm(`wean mass(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
+```
+
+## Step 5
+Plot
+```{r}
+library(ggplot2)
+
+# Which mammalian orders have the highest residual lifespan? - Primates (based on the median)
+d %>% 
+  ggplot(aes(x=order, y=relLife)) +
+  geom_boxplot(na.rm = TRUE) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Which mammalian orders have the have highest residual newborn mass? - Macroscelidea (based on the median)
+d %>% 
+  ggplot(aes(x=order, y=relNewbornMass)) +
+  geom_boxplot(na.rm = TRUE) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Which mammalian orders have the have highest residual weaning mass? - Perissodactyla (based on the median)
+d %>% 
+  ggplot(aes(x=order, y=relWeaningMass)) +
+  geom_boxplot(na.rm = TRUE) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+## Step 6
+Model selection process 
+
+1.  max. life(mo)
+```{r}
+library(dplyr)
+library(MuMIn)
+
+d_clean_1 <- d %>%
+  dplyr::select(`max. life(mo)`, `gestation(mo)`, `newborn(g)`, `weaning(mo)`, `wean mass(g)`, `litters/year`, `mass(g)`) %>%
+  drop_na()
+
+model_life <- lm(`max. life(mo)` ~ ., data = d_clean_1, na.action = "na.fail")
+life_models <- dredge(model_life)
+
+# best model
+best_life_model <- get.models(life_models, 1)[[1]]
+summary(best_life_model)
+
+# how many models have a delta AICc of 4 or less? - Five models
+top_models <- subset(life_models, delta <= 4)
+nrow(top_models)
+
+# What variables, if any, appear in all of this set of “top” models? - gestation(mo), litters/year, weaning(mo)
+top_models
+
+# Model-averaged coefficients and 95% CIs
+avg_life_model <- model.avg(top_models)
+summary(avg_life_model)
+
+confint(avg_life_model, level = 0.95, full = TRUE)
+
+# Plot
+plot(avg_life_model, full = TRUE, intercept = FALSE)
+
+```
+
+
+2.  AFR(mo)
+```{r}
+library(dplyr)
+library(MuMIn)
+
+d_clean_1 <- d %>%
+  dplyr::select(`AFR(mo)`, `gestation(mo)`, `newborn(g)`, `weaning(mo)`, `wean mass(g)`, `litters/year`, `mass(g)`) %>%
+  drop_na()
+
+model_afr <- lm(`AFR(mo)` ~ ., data = d_clean_1, na.action = "na.fail")
+afr_models <- dredge(model_afr)
+
+# best model 
+best_afr_model <- get.models(afr_models, 1)[[1]]
+summary(best_afr_model)
+
+# how many models have a delta AICc of 4 or less? - Seven models
+top_models <- subset(afr_models, delta <= 4)
+nrow(top_models)
+
+# What variables, if any, appear in all of this set of “top” models? - gestation(mo), litters/year, weaning(mo)
+top_models
+
+# Model-averaged coefficients and 95% CIs
+avg_afr_model <- model.avg(top_models)
+summary(avg_afr_model)
+
+confint(avg_afr_model, level = 0.95, full = TRUE)
+
+# Plot
+plot(avg_afr_model, full = TRUE, intercept = FALSE)
+
+```
