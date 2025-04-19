@@ -679,12 +679,12 @@ NA.</p>
 <div id="step-4" class="section level2">
 <h2>Step 4</h2>
 <p>Regression</p>
-<pre class="r"><code>d$relGest &lt;- residuals(lm(`gestation(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relWean &lt;- residuals(lm(`weaning(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relAFR &lt;- residuals(lm(`AFR(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relLife &lt;- residuals(lm(`max. life(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relNewbornMass &lt;- residuals(lm(`newborn(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relWeaningMass &lt;- residuals(lm(`wean mass(g)` ~ `mass(g)`, data = d, na.action = na.exclude))</code></pre>
+<pre class="r"><code>d$relGest &lt;- resid(lm(`gestation(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWean &lt;- resid(lm(`weaning(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relAFR &lt;- resid(lm(`AFR(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relLife &lt;- resid(lm(`max. life(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relNewbornMass &lt;- resid(lm(`newborn(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWeaningMass &lt;- resid(lm(`wean mass(g)` ~ `mass(g)`, data = d, na.action = na.exclude))</code></pre>
 </div>
 <div id="step-5" class="section level2">
 <h2>Step 5</h2>

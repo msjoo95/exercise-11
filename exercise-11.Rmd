@@ -53,12 +53,12 @@ d <- d %>%
 ## Step 4
 Regression
 ```{r}
-d$relGest <- residuals(lm(`gestation(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relWean <- residuals(lm(`weaning(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relAFR <- residuals(lm(`AFR(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relLife <- residuals(lm(`max. life(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relNewbornMass <- residuals(lm(`newborn(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
-d$relWeaningMass <- residuals(lm(`wean mass(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relGest <- resid(lm(`gestation(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWean <- resid(lm(`weaning(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relAFR <- resid(lm(`AFR(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relLife <- resid(lm(`max. life(mo)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relNewbornMass <- resid(lm(`newborn(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
+d$relWeaningMass <- resid(lm(`wean mass(g)` ~ `mass(g)`, data = d, na.action = na.exclude))
 ```
 
 ## Step 5
